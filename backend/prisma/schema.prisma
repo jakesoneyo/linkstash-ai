@@ -1,0 +1,68 @@
+// linkstash-ai 데이터 모델. DATA-MODEL.md 원안 그대로 유지 — 벡터/임베딩 없음, 일반 관계형 모델만.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LinkStatus {
+  PENDING // 저장됨, 크롤링/요약 대기·진행중
+  READY   // 요약·태그 생성 완료
+  FAILED  // 크롤링 또는 LLM 실패 (failReason 참고)
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  links        Link[]
+}
+
+model Link {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  url        String                       // 원본 URL (사용자 입력)
+  title      String?                      // 크롤링으로 채움
+  ogImage    String?                      // OG 이미지 URL (카드 썸네일)
+  summary    String?    @db.Text          // LLM 3줄 요약
+  status     LinkStatus @default(PENDING)
+  failReason String?                      // CRAWL_ERROR | LLM_ERROR | ... (FAILED일 때)
+
+  tags       TagsOnLinks[]
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  // 유저별 최신순 목록 (기본 조회)
+  @@index([userId, createdAt])
+  // 상태별 필터/재처리 sweep
+  @@index([userId, status])
+}
+
+model Tag {
+  id     String        @id @default(cuid())
+  userId String                            // 태그도 유저 스코프 (유저별 태그 사전)
+  name   String
+  links  TagsOnLinks[]
+
+  // 같은 유저 내 태그명 유일 → LLM 태그 upsert 시 중복 방지
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+// 명시적 조인 테이블 (다대다) — 태그 필터 쿼리 최적화·확장 여지
+model TagsOnLinks {
+  linkId String
+  tagId  String
+  link   Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([linkId, tagId])
+  @@index([tagId]) // 태그 → 링크 역방향 조회
+}

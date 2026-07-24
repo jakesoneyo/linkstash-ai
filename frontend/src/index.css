@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/*
+ * DESIGN.md "C. Dev Console" 디자인 토큰 — 다크 전용 단일 테마(라이트 모드 없음).
+ * --color-* / --font-* 는 Tailwind v4 @theme 네임스페이스라 자동으로
+ * bg-accent / text-muted / font-mono 같은 유틸리티 클래스가 생성된다.
+ */
+@theme {
+  --color-bg: #0b0d0f;
+  --color-surface: #131619;
+  --color-surface-2: #171b1e;
+  --color-text: #e6e9ec;
+  --color-muted: #7c8891;
+  --color-border: #21262b;
+  --color-accent: #e8823a;
+  --color-accent-soft: #2a1d10;
+  --color-ok: #38d38f;
+  --color-ok-soft: #102019;
+  --color-warn: #f2b84b;
+  --color-warn-soft: #241d0e;
+  --color-danger: #f2555a;
+  --color-danger-soft: #26161a;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* PENDING 카드 스켈레톤 — shimmer 애니메이션은 모션 최소화 설정을 존중한다(DESIGN.md). */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-2) 37%,
+    var(--color-surface) 63%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line {
+    animation: none;
+  }
+}
