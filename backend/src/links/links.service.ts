@@ -138,9 +138,9 @@ export class LinksService {
     linkId: string,
     names: string[],
   ): Promise<void> {
-    await this.prisma.$transaction((tx) =>
-      replaceLinkTags(tx, userId, linkId, names),
-    );
+    // 인터랙티브 $transaction을 쓰지 않는 이유는 enrichment.service.ts의 동일 주석 참고
+    // (Neon 서버리스 커넥션 재활용/일시중단 시 "Transaction not found"로 실패하는 문제 회피).
+    await replaceLinkTags(this.prisma, userId, linkId, names);
   }
 
   /**

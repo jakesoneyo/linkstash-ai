@@ -7,7 +7,8 @@ import { PrismaService } from '../prisma/prisma.service';
 /**
  * EnrichmentService 단위 테스트 — 실제 크롤링/OpenAI 호출 없이 CrawlerService·
  * SummarizerService·PrismaService를 전부 목으로 교체해 상태 전이(PENDING -> READY/FAILED)
- * 로직만 검증한다. tags.util(replaceLinkTags)의 tx 호출도 fake transaction으로 확인.
+ * 로직만 검증한다. tags.util(replaceLinkTags)는 인터랙티브 트랜잭션 없이 this.prisma를
+ * 직접 받으므로(Neon 서버리스 커넥션 이슈 회피), 태그 관련 메서드도 prisma 목에 바로 둔다.
  */
 describe('EnrichmentService', () => {
   const link = {
@@ -30,23 +31,16 @@ describe('EnrichmentService', () => {
           Promise.resolve({ id: `tag-${where.userId_name.name}` }),
       );
 
-    const tx = {
-      link: { update: updateMock },
-      tag: { upsert: tagUpsert },
-      tagsOnLinks: {
-        deleteMany: tagsOnLinksDeleteMany,
-        createMany: tagsOnLinksCreateMany,
-      },
-    };
-
     const prisma = {
       link: {
         findUnique: jest.fn().mockResolvedValue(link),
         update: updateMock,
       },
-      $transaction: jest
-        .fn()
-        .mockImplementation((cb: (tx: unknown) => unknown) => cb(tx)),
+      tag: { upsert: tagUpsert },
+      tagsOnLinks: {
+        deleteMany: tagsOnLinksDeleteMany,
+        createMany: tagsOnLinksCreateMany,
+      },
     } as unknown as PrismaService;
 
     const crawler = {

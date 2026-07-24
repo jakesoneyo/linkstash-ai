@@ -53,21 +53,24 @@ export class EnrichmentService {
         crawled.bodyText,
       );
 
-      // 상태 전이 PENDING -> READY: 요약/태그를 한 트랜잭션으로 함께 반영해
-      // "요약은 있는데 태그가 비어있는" 중간 상태가 관측되지 않게 한다.
-      await this.prisma.$transaction(async (tx) => {
-        await tx.link.update({
-          where: { id: linkId },
-          data: {
-            title: crawled.title,
-            ogImage: crawled.ogImage,
-            summary: result.summary,
-            status: LinkStatus.READY,
-            failReason: null,
-          },
-        });
-        await replaceLinkTags(tx, link.userId, linkId, result.tags);
+      // 상태 전이 PENDING -> READY: 요약 저장 후 태그를 반영한다.
+      // 원래는 인터랙티브 $transaction으로 묶어 "요약은 있는데 태그가 비어있는"
+      // 중간 상태를 없애려 했으나, Neon 서버리스 Postgres는 유휴 커넥션을
+      // 재활용/일시중단하기 때문에 인터랙티브 트랜잭션이 그 사이에 끊긴 커넥션을
+      // 참조하며 "Transaction not found"로 실패하는 사례가 있었다(prod에서 재현됨).
+      // 순차 실행으로 바꿔 이 문제를 피한다 — 두 쓰기 사이 수 ms의 원자성 손실은
+      // 폴링 UI에서 사실상 관측되지 않아 감수 가능하다고 판단.
+      await this.prisma.link.update({
+        where: { id: linkId },
+        data: {
+          title: crawled.title,
+          ogImage: crawled.ogImage,
+          summary: result.summary,
+          status: LinkStatus.READY,
+          failReason: null,
+        },
       });
+      await replaceLinkTags(this.prisma, link.userId, linkId, result.tags);
     } catch (err) {
       // 크롤링은 성공했으므로 title/ogImage는 남겨 재처리 시 참고할 수 있게 한다.
       await this.prisma.link.update({
