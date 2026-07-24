@@ -127,4 +127,8 @@ CI(`.github/workflows/ci.yml`)는 매 push/PR마다 백엔드 lint→build→단
 
 ## 배포
 
-- 프론트(Vercel), 백엔드(Docker 이미지 로컬 실행/데모) — **배포 예정** (사용자 승인 후 진행).
+- **프론트**: https://linkstash-ai.vercel.app (Vercel)
+- **백엔드**: https://linkstash-ai-api.onrender.com (Render, Docker) · Swagger: `/api/docs` · 헬스체크: `/health`
+- **DB**: Neon Postgres
+
+무료 티어라 백엔드가 일정 시간 미사용 시 슬립 상태로 전환될 수 있다 — 첫 요청은 응답까지 몇십 초 걸릴 수 있음.
