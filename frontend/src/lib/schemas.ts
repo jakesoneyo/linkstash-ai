@@ -43,8 +43,14 @@ export const RegisterInputSchema = z.object({
 });
 export type RegisterInput = z.infer<typeof RegisterInputSchema>;
 
+// 포트폴리오 데모 편의: 리터럴 'admin' 하나만 이메일 형식 검증에서 예외를 둔다(백엔드 LoginSchema와 동일 규칙).
+// 데모 계정 버튼으로 채워진 email='admin'이 이 프론트 검증 단계에서 막히지 않도록 하기 위함이며,
+// 다른 문자열은 여전히 정상 이메일 형식만 통과한다.
 export const LoginInputSchema = z.object({
-  email: z.string().email("올바른 이메일 형식이 아닙니다."),
+  email: z.union([
+    z.literal("admin"),
+    z.string().email("올바른 이메일 형식이 아닙니다."),
+  ]),
   password: z.string().min(1, "비밀번호를 입력하세요."),
 });
 export type LoginInput = z.infer<typeof LoginInputSchema>;

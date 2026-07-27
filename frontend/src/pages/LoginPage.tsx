@@ -33,6 +33,23 @@ export function LoginPage() {
     }
   }
 
+  /**
+   * 포트폴리오 시연용 데모 로그인. 회원가입 없이 미리 채워둔 샘플 데이터를 바로 볼 수 있도록
+   * email/password 입력을 admin/admin으로 채우고 즉시 로그인까지 수행한다.
+   * 인증 절차 자체는 일반 로그인과 동일(백엔드가 비밀번호를 정상 검증)하며, 프론트에서 우회하지 않는다.
+   */
+  async function handleDemoLogin() {
+    setEmail("admin");
+    setPassword("admin");
+    setError(null);
+    try {
+      await loginMutation.mutateAsync({ email: "admin", password: "admin" });
+      navigate("/");
+    } catch {
+      setError("데모 계정 로그인에 실패했습니다.");
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg px-4 text-text">
       <form
@@ -73,6 +90,21 @@ export function LoginPage() {
           className="w-full rounded border border-accent bg-accent-soft px-3 py-2 font-mono text-sm text-accent transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {loginMutation.isPending ? "로그인 중..." : "로그인"}
+        </button>
+
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="font-mono text-[10px] text-muted">또는</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={loginMutation.isPending}
+          className="w-full rounded border border-border bg-surface-2 px-3 py-2 font-mono text-sm text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+        >
+          데모 계정으로 로그인
         </button>
 
         <p className="mt-4 text-center font-mono text-xs text-muted">
