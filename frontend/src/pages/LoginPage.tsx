@@ -104,7 +104,7 @@ export function LoginPage() {
           disabled={loginMutation.isPending}
           className="w-full rounded border border-border bg-surface-2 px-3 py-2 font-mono text-sm text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
         >
-          데모 계정으로 로그인
+          회원가입 없이 데모로 둘러보기
         </button>
 
         <p className="mt-4 text-center font-mono text-xs text-muted">
