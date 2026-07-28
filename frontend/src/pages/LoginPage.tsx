@@ -57,7 +57,7 @@ export function LoginPage() {
         className="w-full max-w-sm border border-border bg-surface p-6"
       >
         <h1 className="mb-6 font-mono text-lg font-semibold">
-          link<span className="text-accent">stash</span>
+          Link<span className="text-accent">Brief</span>
         </h1>
 
         <label className="mb-1 block font-mono text-xs text-muted">

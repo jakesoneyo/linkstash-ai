@@ -15,7 +15,7 @@ export function TopBar({ onQuickAdd, quickAddPending }: TopBarProps) {
   return (
     <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-border bg-surface px-4 py-3 md:px-6">
       <div className="font-mono text-lg font-semibold">
-        link<span className="text-accent">stash</span>
+        Link<span className="text-accent">Brief</span>
       </div>
       <div className="order-3 w-full md:order-2 md:w-auto md:flex-1">
         <QuickAddInput onSubmit={onQuickAdd} pending={quickAddPending} />
