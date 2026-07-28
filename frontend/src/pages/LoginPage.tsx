@@ -104,10 +104,10 @@ export function LoginPage() {
           disabled={loginMutation.isPending}
           className="w-full rounded border border-border bg-surface-2 px-3 py-2 font-mono text-sm text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
         >
-          회원가입 없이 데모로 둘러보기
+          회원가입 없이 둘러보기
         </button>
         <p className="mt-2 text-center font-mono text-[10px] text-muted">
-          회원가입 없이 admin 계정으로 바로 대시보드를 체험할 수 있습니다.
+          회원가입 없이 체험해 볼 수 있습니다.
         </p>
 
         <p className="mt-4 text-center font-mono text-xs text-muted">
