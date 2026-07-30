@@ -17,6 +17,19 @@ export function LoginPage() {
     if (accessToken) navigate("/", { replace: true });
   }, [accessToken, navigate]);
 
+  const [showColdStartHint, setShowColdStartHint] = useState(false);
+
+  // Render 무료 티어 콜드스타트로 로그인이 오래 걸릴 수 있어, 4초 넘게 pending이면
+  // "화면이 멈췄다"는 오해를 막기 위해 안내 문구를 띄운다. 요청이 끝나면 즉시 정리한다.
+  useEffect(() => {
+    if (!loginMutation.isPending) {
+      setShowColdStartHint(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowColdStartHint(true), 4000);
+    return () => clearTimeout(timer);
+  }, [loginMutation.isPending]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const parsed = LoginInputSchema.safeParse({ email, password });
@@ -91,6 +104,11 @@ export function LoginPage() {
         >
           {loginMutation.isPending ? "로그인 중..." : "로그인"}
         </button>
+        {showColdStartHint && (
+          <p className="mt-2 text-center font-mono text-[10px] text-muted">
+            서버를 깨우는 중입니다.
+          </p>
+        )}
 
         <div className="my-4 flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
